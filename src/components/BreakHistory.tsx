@@ -28,7 +28,9 @@ function groupByDate(entries: BreakEntry[]): DayGroup[] {
     .map(([date, dayEntries]) => ({
       date,
       entries: dayEntries.sort((a, b) => b.createdAt - a.createdAt),
-      total: dayEntries.reduce((sum, e) => sum + e.durationMinutes, 0),
+      total: dayEntries
+        .filter((e) => e.durationMinutes !== null)
+        .reduce((sum, e) => sum + (e.durationMinutes as number), 0),
     }))
     .sort((a, b) => (a.date < b.date ? 1 : -1));
 }
@@ -156,7 +158,7 @@ export function BreakHistory({ entries, onDelete, onClearAll }: BreakHistoryProp
                       <div className="min-w-0">
                         <p className="text-sm text-slate-700">
                           {formatTimeDisplay(entry.startTime)} —{' '}
-                          {formatTimeDisplay(entry.endTime)}
+                          {entry.endTime ? formatTimeDisplay(entry.endTime) : 'In progress'}
                         </p>
                         {entry.note && (
                           <p className="truncate text-xs text-slate-400">
@@ -167,7 +169,9 @@ export function BreakHistory({ entries, onDelete, onClearAll }: BreakHistoryProp
                     </div>
                     <div className="flex items-center gap-3">
                       <span className="text-sm font-medium text-slate-700">
-                        {formatDuration(entry.durationMinutes)}
+                        {entry.durationMinutes !== null
+                          ? formatDuration(entry.durationMinutes)
+                          : '—'}
                       </span>
                       <button
                         onClick={() => onDelete(entry.id)}

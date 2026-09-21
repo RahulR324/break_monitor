@@ -9,8 +9,8 @@ interface BreakProgressProps {
 
 export function BreakProgress({ entries, today }: BreakProgressProps) {
   const dailyTotal = entries
-    .filter((e) => e.date === today)
-    .reduce((sum, e) => sum + e.durationMinutes, 0);
+    .filter((e) => e.date === today && e.durationMinutes !== null)
+    .reduce((sum, e) => sum + (e.durationMinutes as number), 0);
 
   const percent = Math.min(100, (dailyTotal / DAILY_LIMIT_MINUTES) * 100);
   const remaining = Math.max(0, DAILY_LIMIT_MINUTES - dailyTotal);

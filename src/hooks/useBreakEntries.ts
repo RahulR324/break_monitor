@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { BreakEntry } from '@/types';
+import { calculateDuration } from '@/utils/time';
 
 const STORAGE_KEY = 'break-time-monitor-entries';
 
@@ -26,13 +27,30 @@ export function useBreakEntries() {
     }
   }, [entries]);
 
-  const addEntry = useCallback((entry: Omit<BreakEntry, 'id' | 'createdAt'>) => {
-    const newEntry: BreakEntry = {
-      ...entry,
-      id: crypto.randomUUID(),
-      createdAt: Date.now(),
-    };
-    setEntries((prev) => [...prev, newEntry]);
+  const startBreak = useCallback(
+    (startTime: string, note: string, date: string) => {
+      const newEntry: BreakEntry = {
+        id: crypto.randomUUID(),
+        date,
+        startTime,
+        endTime: null,
+        durationMinutes: null,
+        note,
+        createdAt: Date.now(),
+      };
+      setEntries((prev) => [...prev, newEntry]);
+    },
+    []
+  );
+
+  const endBreak = useCallback((id: string, endTime: string) => {
+    setEntries((prev) =>
+      prev.map((entry) => {
+        if (entry.id !== id) return entry;
+        const dur = calculateDuration(entry.startTime, endTime);
+        return { ...entry, endTime, durationMinutes: dur };
+      })
+    );
   }, []);
 
   const deleteEntry = useCallback((id: string) => {
@@ -43,5 +61,5 @@ export function useBreakEntries() {
     setEntries([]);
   }, []);
 
-  return { entries, addEntry, deleteEntry, clearAll };
+  return { entries, startBreak, endBreak, deleteEntry, clearAll };
 }

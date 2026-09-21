@@ -58,8 +58,19 @@ export function calculateDuration(start: string, end: string): number {
 
 export function getDailyTotal(entries: BreakEntry[], date: string): number {
   return entries
-    .filter((e) => e.date === date)
-    .reduce((sum, e) => sum + e.durationMinutes, 0);
+    .filter((e) => e.date === date && e.durationMinutes !== null)
+    .reduce((sum, e) => sum + (e.durationMinutes as number), 0);
+}
+
+export function getActiveBreak(entries: BreakEntry[]): BreakEntry | null {
+  return entries.find((e) => e.endTime === null) ?? null;
+}
+
+export function getCurrentTimeString(): string {
+  const d = new Date();
+  const h = d.getHours().toString().padStart(2, '0');
+  const m = d.getMinutes().toString().padStart(2, '0');
+  return `${h}:${m}`;
 }
 
 export function getRemainingMinutes(entries: BreakEntry[], date: string): number {
@@ -69,7 +80,6 @@ export function getRemainingMinutes(entries: BreakEntry[], date: string): number
 export function getUsagePercent(entries: BreakEntry[], date: string): number {
   return Math.min(100, (getDailyTotal(entries, date) / DAILY_LIMIT_MINUTES) * 100);
 }
-
 export function getUsageColor(percent: number): string {
   if (percent >= 100) return 'text-red-600';
   if (percent >= 80) return 'text-amber-600';
