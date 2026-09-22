@@ -131,11 +131,10 @@ export function BreakHistory({ entries, onDelete, onClearAll }: BreakHistoryProp
                     {formatDateDisplay(group.date)}
                   </span>
                   <span
-                    className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                      overLimit
+                    className={`rounded-full px-2 py-0.5 text-xs font-medium ${overLimit
                         ? 'bg-red-100 text-red-700'
                         : 'bg-slate-200 text-slate-600'
-                    }`}
+                      }`}
                   >
                     {formatDuration(group.total)}
                   </span>

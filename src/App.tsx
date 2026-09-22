@@ -3,10 +3,12 @@ import { BreakProgress } from '@/components/BreakProgress';
 import { BreakForm } from '@/components/BreakForm';
 import { BreakHistory } from '@/components/BreakHistory';
 import { useBreakEntries } from '@/hooks/useBreakEntries';
+import { useNow } from '@/hooks/useNow';
 import { getTodayString, getDailyTotal, getActiveBreak } from '@/utils/time';
 
 function App() {
   const { entries, startBreak, endBreak, deleteEntry, clearAll } = useBreakEntries();
+  const now = useNow(1000);
   const today = getTodayString();
   const todayTotal = getDailyTotal(entries, today);
   const activeBreak = getActiveBreak(entries);
@@ -17,7 +19,7 @@ function App() {
       <main className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-8">
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <div className="space-y-6">
-            <BreakProgress entries={entries} today={today} />
+            <BreakProgress entries={entries} today={today} now={now} />
             <BreakForm
               activeBreak={activeBreak}
               currentDailyTotal={todayTotal}

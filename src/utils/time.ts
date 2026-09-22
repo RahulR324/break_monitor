@@ -73,6 +73,26 @@ export function getCurrentTimeString(): string {
   return `${h}:${m}`;
 }
 
+export function getElapsedMinutes(startTime: string, now: Date): number {
+  const [sh, sm] = startTime.split(':').map(Number);
+  const startTotalSec = sh * 3600 + sm * 60;
+  const nowTotalSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+  let diff = nowTotalSec - startTotalSec;
+  if (diff < 0) diff += 24 * 3600;
+  return diff / 60;
+}
+
+export function formatLiveDuration(minutes: number): string {
+  const totalSeconds = Math.floor(minutes * 60);
+  const h = Math.floor(totalSeconds / 3600);
+  const m = Math.floor((totalSeconds % 3600) / 60);
+  const s = totalSeconds % 60;
+  if (h > 0) {
+    return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  }
+  return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
 export function getRemainingMinutes(entries: BreakEntry[], date: string): number {
   return Math.max(0, DAILY_LIMIT_MINUTES - getDailyTotal(entries, date));
 }

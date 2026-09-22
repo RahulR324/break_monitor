@@ -1,16 +1,22 @@
-import { formatDuration, getBarColor, getUsageColor } from '@/utils/time';
+import { formatDuration, getBarColor, getUsageColor, getElapsedMinutes } from '@/utils/time';
 import type { BreakEntry } from '@/types';
 import { DAILY_LIMIT_MINUTES } from '@/types';
 
 interface BreakProgressProps {
   entries: BreakEntry[];
   today: string;
+  now: Date;
 }
 
-export function BreakProgress({ entries, today }: BreakProgressProps) {
-  const dailyTotal = entries
+export function BreakProgress({ entries, today, now }: BreakProgressProps) {
+  const completedTotal = entries
     .filter((e) => e.date === today && e.durationMinutes !== null)
     .reduce((sum, e) => sum + (e.durationMinutes as number), 0);
+
+  const active = entries.find((e) => e.endTime === null && e.date === today);
+  const liveElapsed = active ? getElapsedMinutes(active.startTime, now) : 0;
+
+  const dailyTotal = completedTotal + liveElapsed;
 
   const percent = Math.min(100, (dailyTotal / DAILY_LIMIT_MINUTES) * 100);
   const remaining = Math.max(0, DAILY_LIMIT_MINUTES - dailyTotal);
@@ -29,7 +35,7 @@ export function BreakProgress({ entries, today }: BreakProgressProps) {
 
       <div className="mt-3 flex items-baseline gap-2">
         <span className="text-3xl font-bold text-slate-900 sm:text-4xl">
-          {formatDuration(dailyTotal)}
+          {formatDuration(Math.floor(dailyTotal))}
         </span>
         <span className="text-sm text-slate-400">
           of {formatDuration(DAILY_LIMIT_MINUTES)}
@@ -38,7 +44,7 @@ export function BreakProgress({ entries, today }: BreakProgressProps) {
 
       <div className="mt-4 h-3 w-full overflow-hidden rounded-full bg-slate-100">
         <div
-          className={`h-full rounded-full transition-all duration-500 ease-out ${getBarColor(percent)}`}
+          className={`h-full rounded-full transition-all duration-1000 ease-linear ${getBarColor(percent)}`}
           style={{ width: `${Math.min(100, percent)}%` }}
         />
       </div>
@@ -46,11 +52,11 @@ export function BreakProgress({ entries, today }: BreakProgressProps) {
       <div className="mt-3 flex items-center justify-between text-sm">
         {overLimit ? (
           <span className="font-medium text-red-600">
-            {formatDuration(dailyTotal - DAILY_LIMIT_MINUTES)} over limit
+            {`${Math.ceil(dailyTotal - DAILY_LIMIT_MINUTES)} min over limit`}
           </span>
         ) : (
           <span className="font-medium text-slate-600">
-            {formatDuration(remaining)} remaining
+            {`${Math.ceil(remaining)} min remaining`}
           </span>
         )}
         <span className="text-slate-400">
