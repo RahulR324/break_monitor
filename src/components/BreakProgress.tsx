@@ -52,7 +52,7 @@ export function BreakProgress({ entries, today, now }: BreakProgressProps) {
       <div className="mt-3 flex items-center justify-between text-sm">
         {overLimit ? (
           <span className="font-medium text-red-600">
-            {`${Math.ceil(dailyTotal - DAILY_LIMIT_MINUTES)} min over limit`}
+            {`${Math.floor(dailyTotal - DAILY_LIMIT_MINUTES)} min over limit`}
           </span>
         ) : (
           <span className="font-medium text-slate-600">

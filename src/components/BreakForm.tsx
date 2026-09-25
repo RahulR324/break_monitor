@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Play, Square, AlertCircle, Clock } from 'lucide-react';
+import { Play, Square, AlertCircle, Clock, AlertTriangle } from 'lucide-react';
 import { getTodayString, getCurrentTimeString, calculateDuration } from '@/utils/time';
 import type { BreakEntry } from '@/types';
 import { DAILY_LIMIT_MINUTES } from '@/types';
@@ -21,12 +21,14 @@ export function BreakForm({
   const [note, setNote] = useState('');
   const [endTime, setEndTime] = useState('');
   const [error, setError] = useState('');
+  const [overLimitMsg, setOverLimitMsg] = useState('');
 
   const today = getTodayString();
 
   const handleStart = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setOverLimitMsg('');
 
     const time = startTime || getCurrentTimeString();
 
@@ -51,16 +53,16 @@ export function BreakForm({
     }
 
     const newTotal = currentDailyTotal + dur;
-    if (newTotal > DAILY_LIMIT_MINUTES) {
-      const over = newTotal - DAILY_LIMIT_MINUTES;
-      setError(
-        `This break would exceed your daily limit by ${over} min. Current total: ${currentDailyTotal} min.`
-      );
-      return;
-    }
 
     onEnd(activeBreak.id, time);
     setEndTime('');
+
+    if (newTotal > DAILY_LIMIT_MINUTES) {
+      const over = Math.floor(newTotal - DAILY_LIMIT_MINUTES);
+      setOverLimitMsg(
+        `You've taken ${over} min more than your 1 hr limit today.`
+      );
+    }
   };
 
   const handleCancel = () => {
@@ -192,6 +194,13 @@ export function BreakForm({
           <div className="flex items-start gap-2 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
             <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
             <span>{error}</span>
+          </div>
+        )}
+
+        {overLimitMsg && (
+          <div className="flex items-start gap-2 rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-800">
+            <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+            <span>{overLimitMsg}</span>
           </div>
         )}
 
